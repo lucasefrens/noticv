@@ -42,12 +42,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyC7IzuTUluKmzVveDbhK3ZXw1gdtlXAgGo',
-    appId: '1:956139455163:web:3a26eb8dd2073707e45f9e',
+    appId: '1:956139455163:web:95f666ecc37ddd5de45f9e',
     messagingSenderId: '956139455163',
     projectId: 'notificacoes-unicv',
     authDomain: 'notificacoes-unicv.firebaseapp.com',
     storageBucket: 'notificacoes-unicv.appspot.com',
-    measurementId: 'G-1E8J6QH4F9',
+    measurementId: 'G-J0BG74RXX3',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
