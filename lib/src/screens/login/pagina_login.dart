@@ -93,7 +93,8 @@ class _PaginaLoginState extends State<PaginaLogin> {
                           tipoTeclado: TextInputType.visiblePassword,
                           inputSenha: true,
                           validator: (valorSenha) {
-                            if (valorSenha == null || valorSenha.trim().length < 6) {
+                            if (valorSenha == null ||
+                                valorSenha.trim().length < 6) {
                               return 'A senha deve ter pelo menos 6 caracteres';
                             }
                             return null;
@@ -119,12 +120,17 @@ class _PaginaLoginState extends State<PaginaLogin> {
                                 password: _senhaInserida,
                               );
                             } catch (_) {
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Falha na autenticação'),
-                                ),
-                              );
+                              if (mounted) {
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Falha na autenticação.'),
+                                    ),
+                                  );
+                                });
+                              }
                             }
                           },
                         ),

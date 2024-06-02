@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TipoUsuario {
+class Semestre {
   final int id;
   final String descricao;
 
-  TipoUsuario({
+  Semestre({
     required this.id,
     required this.descricao,
   });
 
-  factory TipoUsuario.fromFirestore(DocumentSnapshot doc) {
+  factory Semestre.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map;
-    return TipoUsuario(
+    return Semestre(
       id: int.parse(doc.id),
       descricao: data['descricao'] ?? '',
     );
@@ -19,6 +19,6 @@ class TipoUsuario {
 
   @override
   String toString() {
-    return 'TipoUsuario{id: $id, descricao: $descricao}';
+    return 'Semestre{id: $id, descricao: $descricao}';
   }
 }

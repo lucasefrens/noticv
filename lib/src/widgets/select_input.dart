@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 
+class SelectItem {
+  final int id;
+  final String descricao;
+
+  SelectItem(this.id, this.descricao);
+}
+
 class SelectInput extends StatefulWidget {
   final String label;
   final String textoDica;
-  final List<dynamic> itens;
-  final dynamic valorSelecionado;
-  final Function(dynamic) onChanged;
-  final String? Function(dynamic)? validator;
+  final List<SelectItem> itens;
+  final int? valorSelecionado;
+  final Function(int?) onChanged;
+  final String? Function(int?)? validator;
 
   const SelectInput({
     required this.label,
     required this.textoDica,
     required this.itens,
-    required this.valorSelecionado,
+    this.valorSelecionado,
     required this.onChanged,
     this.validator,
     super.key,
@@ -23,7 +30,7 @@ class SelectInput extends StatefulWidget {
 }
 
 class _SelectInputState extends State<SelectInput> {
-  String? _valorSelecionado;
+  int? _valorSelecionado;
 
   @override
   void initState() {
@@ -44,7 +51,7 @@ class _SelectInputState extends State<SelectInput> {
           ),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
+        DropdownButtonFormField<int>(
           value: _valorSelecionado,
           decoration: InputDecoration(
             hintText: widget.textoDica,
@@ -56,9 +63,9 @@ class _SelectInputState extends State<SelectInput> {
             ),
           ),
           items: widget.itens.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item.toString()),
+            return DropdownMenuItem<int>(
+              value: item.id,
+              child: Text(item.descricao),
             );
           }).toList(),
           onChanged: (valor) {
