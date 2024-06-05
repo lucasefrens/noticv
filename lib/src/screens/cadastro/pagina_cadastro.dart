@@ -94,30 +94,38 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
   Future<void> _fetchSemestres(int idCurso) async {
     String id = idCurso.toString();
     try {
-      // Obtém todos os documentos da subcoleção 'semestres' do curso específico
-      QuerySnapshot snapshot = await _firestore
-          .collection('cursos')
-          .doc(id)
-          .collection('semestres')
-          .get();
+      // Obtém o documento do curso específico
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('cursos').doc(id).get();
 
-      // Inicializa uma lista vazia para armazenar os semestres
-      List<Semestre> semestres = [];
+      // Verifica se o documento existe e tem o campo 'quantidadeSemestre'
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.containsKey('quantidadeSemestre')) {
+          int quantidadeSemestre = data['quantidadeSemestre'];
 
-      // Itera sobre cada documento na coleção 'semestres'
-      for (var doc in snapshot.docs) {
-        int quantidade = doc['quantidade'];
-        // Adiciona opções de semestre com base na quantidade
-        for (int i = 1; i <= quantidade; i++) {
-          semestres.add(Semestre(id: i, descricao: '$iº Semestre'));
+          // Inicializa uma lista vazia para armazenar os semestres
+          List<Semestre> semestres = [];
+
+          // Adiciona opções de semestre com base na quantidade
+          for (int i = 1; i <= quantidadeSemestre; i++) {
+            semestres.add(Semestre(id: i, descricao: '$iº Semestre'));
+          }
+
+          // Atualiza o estado com a lista de semestres
+          setState(() {
+            _semestres = semestres;
+            _semestreSelecionado = null; // Limpar seleção anterior
+          });
+        } else {
+          // Caso o documento não tenha o campo 'quantidadeSemestre'
+          throw Exception(
+              'Campo quantidadeSemestre não encontrado no documento do curso');
         }
+      } else {
+        // Caso o documento não exista
+        throw Exception('Documento do curso não encontrado');
       }
-
-      // Atualiza o estado com a lista de semestres
-      setState(() {
-        _semestres = semestres;
-        _semestreSelecionado = null; // Limpar seleção anterior
-      });
     } catch (e) {
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -309,10 +317,13 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                         onChanged: (valor) {
                           setState(() {
                             _cursoSelecionado = valor;
-                            if (_cursoSelecionado != null) {
-                              _fetchSemestres(_cursoSelecionado!);
-                            }
+                            _semestreSelecionado = null; // Resetar a seleção de semestre
+                            _semestres = []; // Limpar a lista de semestres
                           });
+
+                          if (_cursoSelecionado != null) {
+                            _fetchSemestres(_cursoSelecionado!);
+                          }
                         },
                         validator: (valor) {
                           if (valor == null) {
@@ -328,6 +339,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                         itens: _semestres
                             .map((tipo) => SelectItem(tipo.id, tipo.descricao))
                             .toList(),
+                        valorSelecionado: _semestreSelecionado,
                         onChanged: (valor) {
                           setState(() {
                             _semestreSelecionado = valor;

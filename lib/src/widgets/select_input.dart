@@ -39,6 +39,17 @@ class _SelectInputState extends State<SelectInput> {
   }
 
   @override
+  void didUpdateWidget(SelectInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reseta _valorSelecionado se o item altera e não existe um semestre no novo curso
+    if (!widget.itens.any((item) => item.id == _valorSelecionado)) {
+      setState(() {
+        _valorSelecionado = null;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

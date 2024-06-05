@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:noticv/src/screens/home/pagina_lista_de_chats.dart';
+import 'package:noticv/src/screens/home/pagina_lista_notificacoes.dart';
 import 'package:noticv/src/screens/login/pagina_login.dart';
 
 import 'firebase_options.dart';
@@ -29,7 +29,7 @@ class MeuApp extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasData) {
-              return const PaginaListaDeChats();
+              return const PaginaListaNotificacoes();
             }
             return const PaginaLogin();
           },
