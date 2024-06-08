@@ -6,6 +6,7 @@ class TextInput extends StatefulWidget {
   final String textoDica;
   final TextInputType tipoTeclado;
   final bool inputSenha;
+  final bool enabled;
   final String? Function(String?)? validator;
   final void Function(String?)? onSaved;
 
@@ -16,6 +17,7 @@ class TextInput extends StatefulWidget {
     required this.textoDica,
     this.tipoTeclado = TextInputType.text,
     this.inputSenha = false,
+    this.enabled = true,
     this.validator,
     this.onSaved,
   });
@@ -49,6 +51,7 @@ class _TextInputState extends State<TextInput> {
         TextFormField(
           controller: widget.controller,
           keyboardType: widget.tipoTeclado,
+          enabled: widget.enabled,
           obscureText: _obscureText,
           validator: widget.validator,
           onSaved: widget.onSaved,
