@@ -74,7 +74,13 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
         }
       }
     } catch (e) {
-      print('Erro ao buscar dados do usuário: $e');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao buscar dados do usuário'),
+          ),
+        );
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -163,6 +169,8 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
           'nome': _nomeController.text,
           'curso': _cursoSelecionado,
           'semestre': _semestreSelecionado,
+          'alteradoPor': user.email,
+          'alteradoEm': Timestamp.now(),
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           ScaffoldMessenger.of(context).showSnackBar(
