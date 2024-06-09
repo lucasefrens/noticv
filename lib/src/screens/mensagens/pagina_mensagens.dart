@@ -8,7 +8,7 @@ import 'package:noticv/src/widgets/barra_navegacao.dart';
 import 'package:noticv/src/widgets/main_button.dart';
 import 'package:noticv/src/widgets/select_input.dart';
 import 'package:noticv/src/widgets/text_area_input.dart';
-import 'package:noticv/src/widgets/text_input.dart';
+import 'package:noticv/src/widgets/custom_text_input.dart';
 
 class PaginaMensagens extends StatefulWidget {
   final int tipoUsuario;
@@ -221,7 +221,7 @@ class _PaginaMensagensState extends State<PaginaMensagens> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextInput(
+                      CustomTextInput(
                           label: 'Título',
                           controller: _titleController,
                           textoDica: 'Digite o título aqui'),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:noticv/src/screens/manutencao/pagina_lista_cursos.dart';
 import 'package:noticv/src/widgets/barra_navegacao.dart';
+import 'package:noticv/src/widgets/main_button.dart';
 
 class PaginaManutencao extends StatefulWidget {
   final int tipoUsuario;
@@ -36,7 +38,7 @@ class _PaginaManutencaoState extends State<PaginaManutencao> {
             children: [
               Container(),
               const Text(
-                'Página Manutenção',
+                'Manutenção',
                 style: TextStyle(
                   color: Color(0xFFDA983A),
                   fontWeight: FontWeight.w600,
@@ -46,8 +48,32 @@ class _PaginaManutencaoState extends State<PaginaManutencao> {
             ],
           ),
         ),
-        body:
-            Placeholder(), //_isLoading ? _buildLoadingIndicator() : _buildProfileForm(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              MainButton(
+                label: 'Manutenção Curso',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PaginaListaCursos(tipoUsuario: widget.tipoUsuario)
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              MainButton(
+                label: 'Manutenção Turma',
+                onPressed: () {
+                  // Adicione a lógica de navegação ou funcionalidade aqui
+                },
+              ),
+            ],
+          ),
+        ),
         bottomNavigationBar: BarraNavegacao(
           currentPage: 2,
           tipoUsuario: widget.tipoUsuario,

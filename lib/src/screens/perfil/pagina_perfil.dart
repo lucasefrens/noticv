@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:noticv/src/widgets/barra_navegacao.dart';
 import 'package:noticv/src/widgets/main_button.dart';
-import 'package:noticv/src/widgets/text_input.dart';
+import 'package:noticv/src/widgets/custom_text_input.dart';
 import 'package:noticv/src/widgets/select_input.dart';
 import 'package:noticv/src/models/curso.dart';
 import 'package:noticv/src/models/semestre.dart';
@@ -265,7 +265,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextInput(
+                CustomTextInput(
                   label: 'Nome',
                   controller: _nomeController,
                   textoDica: 'Digite seu nome',
@@ -277,7 +277,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextInput(
+                CustomTextInput(
                   label: 'Email',
                   controller: _emailController,
                   textoDica: 'Digite seu e-mail',

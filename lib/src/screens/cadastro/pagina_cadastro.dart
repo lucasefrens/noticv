@@ -7,7 +7,7 @@ import 'package:noticv/src/models/semestre.dart';
 import 'package:noticv/src/models/tipo_usuario.dart';
 import 'package:noticv/src/widgets/main_button.dart';
 import 'package:noticv/src/widgets/select_input.dart';
-import 'package:noticv/src/widgets/text_input.dart';
+import 'package:noticv/src/widgets/custom_text_input.dart';
 
 final _firebaseAuth = FirebaseAuth.instance;
 
@@ -248,7 +248,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextInput(
+                    CustomTextInput(
                       label: 'Nome',
                       controller: _nomeController,
                       textoDica: 'Digite seu nome',
@@ -260,7 +260,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextInput(
+                    CustomTextInput(
                       label: 'E-mail',
                       controller: _emailController,
                       textoDica: 'Digite seu e-mail',
@@ -278,7 +278,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextInput(
+                    CustomTextInput(
                       label: 'Senha',
                       controller: _senhaController,
                       textoDica: 'Digite sua senha',
@@ -294,7 +294,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextInput(
+                    CustomTextInput(
                       label: 'Confirme a Senha',
                       controller: _confirmaSenhaController,
                       textoDica: 'Confirme sua senha',

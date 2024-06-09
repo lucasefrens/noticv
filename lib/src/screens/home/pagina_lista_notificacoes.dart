@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:noticv/src/helpers/get_user_name_by_email.dart';
 import 'package:noticv/src/widgets/barra_navegacao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:noticv/src/widgets/notificacao.dart';
 
 class PaginaListaNotificacoes extends StatefulWidget {
   const PaginaListaNotificacoes({super.key});
@@ -20,8 +22,7 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
       future: _getUsuarioAtual(),
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: SizedBox(
@@ -46,7 +47,8 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
 
         Stream<QuerySnapshot> notificacoesStream;
 
-        if (tipoUsuario == 2) { // aluno
+        if (tipoUsuario == 2) {
+          // aluno
           final int cursoUsuario = snapshot.data!.get('curso') as int;
           final int semestreUsuario = snapshot.data!.get('semestre') as int;
 
@@ -56,7 +58,8 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
               .where('semestre', isEqualTo: semestreUsuario)
               .orderBy('criadoEm', descending: true)
               .snapshots();
-        } else if (tipoUsuario == 1 || tipoUsuario == 0) { // professor ou coordenador
+        } else if (tipoUsuario == 1 || tipoUsuario == 0) {
+          // professor ou coordenador
           notificacoesStream = FirebaseFirestore.instance
               .collection('notificacoes')
               .where('criadoPor', isEqualTo: emailUsuario)
@@ -101,7 +104,7 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (snapshot.hasError) {                  
+                if (snapshot.hasError) {
                   return Center(child: Text('Erro: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -110,17 +113,23 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
                 }
 
                 return ListView(
-                  children:
-                      snapshot.data!.docs.map((DocumentSnapshot document) {
-                    Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
+                  children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                     Timestamp timestamp = data['criadoEm'] as Timestamp;
                     String formattedDate = _dateFormat.format(timestamp.toDate());
 
-                    return ListTile(
-                      title: Text(data['titulo'] ?? 'Sem título'),
-                      subtitle: Text(data['descricao'] ?? 'Sem descrição'),
-                      trailing: Text(formattedDate),
+                    return FutureBuilder<String?>(
+                      future: _getUserName(document),
+                      builder: (context, asyncSnapshot) {
+                        String? nomeUsuario = asyncSnapshot.data;
+
+                        return Notificacao(
+                          titulo: data['titulo'] ?? 'Sem título',
+                          descricao: data['descricao'] ?? 'Sem descrição',
+                          data: formattedDate,
+                          criadoPor: nomeUsuario ?? 'Sem autor',
+                        );
+                      },
                     );
                   }).toList(),
                 );
@@ -149,6 +158,16 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
       return querySnapshot.docs.first;
     } else {
       throw Exception('Usuário não encontrado');
+    }
+  }
+
+  Future<String?> _getUserName(DocumentSnapshot document) async {
+    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+    String? email = data['criadoPor'] as String?;
+    if (email != null) {
+      return await getUserNameByEmail(email);
+    } else {
+      return null;
     }
   }
 }

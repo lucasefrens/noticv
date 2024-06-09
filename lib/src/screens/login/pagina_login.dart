@@ -5,7 +5,7 @@ import 'package:noticv/src/screens/cadastro/pagina_cadastro.dart';
 
 // widgets
 import '../../widgets/main_button.dart';
-import '../../widgets/text_input.dart';
+import '../../widgets/custom_text_input.dart';
 import '../../widgets/transparent_button.dart';
 
 final _firebaseAuth = FirebaseAuth.instance;
@@ -66,7 +66,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
                     key: _chaveForm,
                     child: Column(
                       children: [
-                        TextInput(
+                        CustomTextInput(
                           label: 'Digite seu e-mail',
                           controller: _emailController,
                           textoDica: 'E-mail',
@@ -86,7 +86,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
                         const SizedBox(
                           height: 16,
                         ),
-                        TextInput(
+                        CustomTextInput(
                           label: 'Digite sua senha',
                           controller: _senhaController,
                           textoDica: 'Senha',

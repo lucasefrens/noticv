@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class TextInput extends StatefulWidget {
+class CustomTextInput extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final String textoDica;
@@ -9,9 +10,10 @@ class TextInput extends StatefulWidget {
   final bool enabled;
   final String? Function(String?)? validator;
   final void Function(String?)? onSaved;
+  final List<TextInputFormatter>? inputFormatters; // Adicionando esta linha
 
-  const TextInput({
-    super.key,
+  const CustomTextInput({
+    super.key, // Corrigindo a definição do construtor
     required this.label,
     required this.controller,
     required this.textoDica,
@@ -20,13 +22,14 @@ class TextInput extends StatefulWidget {
     this.enabled = true,
     this.validator,
     this.onSaved,
-  });
+    this.inputFormatters,
+  }); // Corrigindo a definição do construtor
 
   @override
-  State<TextInput> createState() => _TextInputState();
+  State<CustomTextInput> createState() => _CustomTextInputState();
 }
 
-class _TextInputState extends State<TextInput> {
+class _CustomTextInputState extends State<CustomTextInput> {
   bool _obscureText = false;
 
   @override
@@ -55,6 +58,7 @@ class _TextInputState extends State<TextInput> {
           obscureText: _obscureText,
           validator: widget.validator,
           onSaved: widget.onSaved,
+          inputFormatters: widget.inputFormatters,
           decoration: InputDecoration(
             hintText: widget.textoDica,
             filled: true,
@@ -67,8 +71,9 @@ class _TextInputState extends State<TextInput> {
                       });
                     },
                     child: _obscureText
-                        ? const Icon(Icons.visibility, color: Color.fromARGB(255, 176, 176, 176))
-                        : const Icon(Icons.visibility_off, color: Color.fromARGB(255, 176, 176, 176)),
+                        ? const Icon(Icons.visibility, color: Color(0xFFB0B0B0))
+                        : const Icon(Icons.visibility_off,
+                            color: Color.fromARGB(255, 176, 176, 176)),
                   )
                 : null,
             border: const OutlineInputBorder(
