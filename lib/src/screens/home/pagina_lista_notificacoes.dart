@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:noticv/src/helpers/get_user_name_by_email.dart';
+import 'package:noticv/src/services/notificacao_service.dart';
+import 'package:noticv/src/services/usuario_service.dart';
 import 'package:noticv/src/widgets/barra_navegacao.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -11,17 +12,18 @@ class PaginaListaNotificacoes extends StatefulWidget {
   const PaginaListaNotificacoes({super.key});
 
   @override
-  State<PaginaListaNotificacoes> createState() =>
-      _PaginaListaNotificacoesState();
+  State<PaginaListaNotificacoes> createState() => _PaginaListaNotificacoesState();
 }
 
 class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+  final NotificacaoService _notificacaoService = NotificacaoService();
+  final UsuarioService _usuarioService = UsuarioService();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-      future: _getUsuarioAtual(),
+      future: _usuarioService.getUsuarioAtual(),
       builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -51,25 +53,12 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
           // aluno
           final int cursoUsuario = snapshot.data!.get('curso') as int;
           final int semestreUsuario = snapshot.data!.get('semestre') as int;
-
-          notificacoesStream = FirebaseFirestore.instance
-              .collection('notificacoes')
-              .where('curso', isEqualTo: cursoUsuario)
-              .where('semestre', isEqualTo: semestreUsuario)
-              .orderBy('criadoEm', descending: true)
-              .snapshots();
+          notificacoesStream = _notificacaoService.fetchNotificacoesParaAluno(cursoUsuario, semestreUsuario);
         } else if (tipoUsuario == 1 || tipoUsuario == 0) {
           // professor ou coordenador
-          notificacoesStream = FirebaseFirestore.instance
-              .collection('notificacoes')
-              .where('criadoPor', isEqualTo: emailUsuario)
-              .orderBy('criadoEm', descending: true)
-              .snapshots();
+          notificacoesStream = _notificacaoService.fetchNotificacoesParaProfessorOuCoordenador(emailUsuario);
         } else {
-          notificacoesStream = FirebaseFirestore.instance
-              .collection('notificacoes')
-              .orderBy('criadoEm', descending: true)
-              .snapshots();
+          notificacoesStream = _notificacaoService.fetchTodasNotificacoes();
         }
 
         return MaterialApp(
@@ -99,8 +88,7 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
             ),
             body: StreamBuilder<QuerySnapshot>(
               stream: notificacoesStream,
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -108,8 +96,7 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
                   return Center(child: Text('Erro: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                      child: Text('Nenhuma notificação encontrada.'));
+                  return const Center(child: Text('Nenhuma notificação encontrada.'));
                 }
 
                 return ListView(
@@ -143,22 +130,6 @@ class _PaginaListaNotificacoesState extends State<PaginaListaNotificacoes> {
         );
       },
     );
-  }
-
-  Future<DocumentSnapshot> _getUsuarioAtual() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    final String email = user?.email ?? '';
-
-    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('usuarios')
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first;
-    } else {
-      throw Exception('Usuário não encontrado');
-    }
   }
 
   Future<String?> _getUserName(DocumentSnapshot document) async {

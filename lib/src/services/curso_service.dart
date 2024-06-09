@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:noticv/src/models/curso.dart';
+import 'package:noticv/src/models/semestre.dart';
 
 class CursoService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -37,5 +39,43 @@ class CursoService {
       proximoId = int.parse(snapshot.docs.last.id) + 1;
     }
     return proximoId;
+  }
+
+  Future<List<Curso>> fetchCursos() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('cursos').get();
+      return snapshot.docs.map((doc) => Curso.fromFirestore(doc)).toList();
+    } catch (e) {
+      throw Exception('Erro ao buscar os cursos: $e');
+    }
+  }
+
+  Future<List<Semestre>> fetchSemestres(int idCurso) async {
+    String id = idCurso.toString();
+    try {
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('cursos').doc(id).get();
+
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+        if (data.containsKey('quantidadeSemestre')) {
+          int quantidadeSemestre = data['quantidadeSemestre'];
+
+          List<Semestre> semestres = [];
+          for (int i = 1; i <= quantidadeSemestre; i++) {
+            semestres.add(Semestre(id: i, descricao: '$iº Semestre'));
+          }
+
+          return semestres;
+        } else {
+          throw Exception(
+              'Campo quantidadeSemestre não encontrado no documento do curso');
+        }
+      } else {
+        throw Exception('Documento do curso não encontrado');
+      }
+    } catch (e) {
+      throw Exception('Erro ao buscar os semestres: $e');
+    }
   }
 }

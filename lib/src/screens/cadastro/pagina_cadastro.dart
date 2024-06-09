@@ -1,15 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:noticv/src/models/curso.dart';
 import 'package:noticv/src/models/semestre.dart';
 import 'package:noticv/src/models/tipo_usuario.dart';
+import 'package:noticv/src/services/curso_service.dart';
+import 'package:noticv/src/services/tipo_usuario_service.dart';
+import 'package:noticv/src/services/usuario_service.dart';
 import 'package:noticv/src/widgets/main_button.dart';
 import 'package:noticv/src/widgets/select_input.dart';
 import 'package:noticv/src/widgets/custom_text_input.dart';
-
-final _firebaseAuth = FirebaseAuth.instance;
 
 class PaginaCadastro extends StatefulWidget {
   const PaginaCadastro({super.key});
@@ -23,8 +22,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
-  final TextEditingController _confirmaSenhaController =
-      TextEditingController();
+  final TextEditingController _confirmaSenhaController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _cursoController = TextEditingController();
   final TextEditingController _semestreController = TextEditingController();
@@ -32,7 +30,9 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
   String _emailInserido = '';
   String _senhaInserida = '';
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CursoService _cursoService = CursoService();
+  final TipoUsuarioService _tipoUsuarioService = TipoUsuarioService();
+  final UsuarioService _usuarioService = UsuarioService();
 
   int? _tipoUsuarioSelecionado;
   List<TipoUsuario> _tiposUsuario = [];
@@ -52,9 +52,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
 
   Future<void> _fetchTiposUsuario() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('tipoUsuario').get();
-      List<TipoUsuario> fetchedTiposUsuario =
-          snapshot.docs.map((doc) => TipoUsuario.fromFirestore(doc)).toList();
+      List<TipoUsuario> fetchedTiposUsuario = await _tipoUsuarioService.fetchTiposUsuario();
 
       setState(() {
         _tiposUsuario = fetchedTiposUsuario;
@@ -73,9 +71,7 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
 
   Future<void> _fetchCursos() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('cursos').get();
-      List<Curso> fetchedCursos =
-          snapshot.docs.map((doc) => Curso.fromFirestore(doc)).toList();
+      List<Curso> fetchedCursos = await _cursoService.fetchCursos();
 
       setState(() {
         _cursos = fetchedCursos;
@@ -92,40 +88,13 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
   }
 
   Future<void> _fetchSemestres(int idCurso) async {
-    String id = idCurso.toString();
     try {
-      // Obtém o documento do curso específico
-      DocumentSnapshot docSnapshot =
-          await _firestore.collection('cursos').doc(id).get();
+      List<Semestre> fetchedSemestres = await _cursoService.fetchSemestres(idCurso);
 
-      // Verifica se o documento existe e tem o campo 'quantidadeSemestre'
-      if (docSnapshot.exists && docSnapshot.data() != null) {
-        Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
-        if (data.containsKey('quantidadeSemestre')) {
-          int quantidadeSemestre = data['quantidadeSemestre'];
-
-          // Inicializa uma lista vazia para armazenar os semestres
-          List<Semestre> semestres = [];
-
-          // Adiciona opções de semestre com base na quantidade
-          for (int i = 1; i <= quantidadeSemestre; i++) {
-            semestres.add(Semestre(id: i, descricao: '$iº Semestre'));
-          }
-
-          // Atualiza o estado com a lista de semestres
-          setState(() {
-            _semestres = semestres;
-            _semestreSelecionado = null; // Limpar seleção anterior
-          });
-        } else {
-          // Caso o documento não tenha o campo 'quantidadeSemestre'
-          throw Exception(
-              'Campo quantidadeSemestre não encontrado no documento do curso');
-        }
-      } else {
-        // Caso o documento não exista
-        throw Exception('Documento do curso não encontrado');
-      }
+      setState(() {
+        _semestres = fetchedSemestres;
+        _semestreSelecionado = null; // Limpar seleção anterior
+      });
     } catch (e) {
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -155,22 +124,14 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
     if (_chaveForm.currentState!.validate()) {
       _chaveForm.currentState!.save();
       try {
-        // Lógica para cadastro
-        await _firebaseAuth.createUserWithEmailAndPassword(
+        await _usuarioService.registrarUsuario(
+          nome: _nomeController.text,
           email: _emailInserido,
-          password: _senhaInserida,
+          senha: _senhaInserida,
+          tipoUsuario: _tipoUsuarioSelecionado!,
+          curso: _tipoUsuarioSelecionado == 2 ? _cursoSelecionado : null,
+          semestre: _tipoUsuarioSelecionado == 2 ? _semestreSelecionado : null,
         );
-        // Salvar dados adicionais no Firestore
-        await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(_firebaseAuth.currentUser!.uid)
-            .set({
-          'nome': _nomeController.text,
-          'email': _emailInserido,
-          'tipoUsuario': _tipoUsuarioSelecionado,
-          if (_tipoUsuarioSelecionado == 2) 'curso': _cursoSelecionado,
-          if (_tipoUsuarioSelecionado == 2) 'semestre': _semestreSelecionado,
-        });
       } catch (e) {
         if (mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
