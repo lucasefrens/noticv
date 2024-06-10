@@ -14,7 +14,6 @@ Future<String?> getUserNameByEmail(String email) async {
       return null; // Retorna null se o usuário não for encontrado
     }
   } catch (e) {
-    print('Erro ao buscar nome do usuário: $e');
     return null;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noticv/src/screens/home/pagina_lista_notificacoes.dart';
 import 'package:noticv/src/screens/manutencao/pagina_lista_cursos.dart';
-import 'package:noticv/src/screens/manutencao/pagina_manutencao.dart';
 import 'package:noticv/src/screens/mensagens/pagina_mensagens.dart';
 import 'package:noticv/src/screens/perfil/pagina_perfil.dart';
 
